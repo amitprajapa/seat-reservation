@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Select seats | Seatly</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+	<div id="nav"></div>
+	<main class="wrap">
+		<a href="index.html">← Shows</a>
+		<header class="row">
+			<div>
+				<p class="tag">YOUR EXPERIENCE</p>
+				<h1 id="showTitle">Choose seats</h1>
+				<p id="showMeta" class="muted"></p>
+			</div>
+			<b id="price"></b>
+		</header>
+		<div class="legend">
+			<span>🟩 Available</span><span>🟦 Selected</span><span>🟥
+				Reserved</span>
+		</div>
+		<section class="panel">
+			<div class="screen">STAGE / SCREEN</div>
+			<div id="seats" class="seats"></div>
+			<div class="row total">
+				<div>
+					<small class="muted">Selected seats</small><b id="selected">None</b>
+					<h2 id="amount">₹0</h2>
+				</div>
+				<button id="reserve" class="btn" disabled>Reserve seats</button>
+			</div>
+		</section>
+		<div id="message"></div>
+	</main>
+	<script src="js/api.js"></script>
+	<script src="js/common.js"></script>
+	<script src="js/booking.js"></script>
+</body>
+</html>

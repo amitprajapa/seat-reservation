@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Seatly | Shows</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+	<div id="nav"></div>
+	<main class="wrap">
+		<section class="hero">
+			<p class="tag">SEAT RESERVATION</p>
+			<h1>Find your next experience.</h1>
+			<p>Choose a show, select seats, and confirm your reservation.</p>
+		</section>
+		<header class="row">
+			<div>
+				<h2>Available shows</h2>
+				<p class="muted">Live from your reservation service</p>
+			</div>
+			<button id="refresh" class="btn ghost">Refresh</button>
+		</header>
+		<div id="message"></div>
+		<div id="shows" class="grid">Loading shows…</div>
+	</main>
+	<script src="js/api.js"></script>
+	<script src="js/common.js"></script>
+	<script src="js/shows.js"></script>
+</body>
+</html>
