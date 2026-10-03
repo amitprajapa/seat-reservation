@@ -1,26 +1,19 @@
-services:
-  mysql:
-    image: mysql:8.4
-    container_name: seat-reservation-mysql
-    restart: unless-stopped
+FROM maven:3.9.9-eclipse-temurin-21 AS build
 
-    environment:
-      MYSQL_ROOT_PASSWORD: 9769
-      MYSQL_DATABASE: seat_reservation
-      MYSQL_USER: root
-      MYSQL_PASSWORD: 9769
+WORKDIR /app
 
-    ports:
-      - "3306:3306"
+COPY pom.xml .
 
-    volumes:
-      - mysql_data:/var/lib/mysql
+COPY src ./src
 
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot123"]
-      interval: 5s
-      timeout: 5s
-      retries: 20
+RUN mvn clean package -DskipTests
 
-volumes:
-  mysql_data:
+FROM eclipse-temurin:21-jre
+
+WORKDIR /app
+
+COPY --from=build /app/target/*.jar app.jar
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
