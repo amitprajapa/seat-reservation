@@ -3,6 +3,8 @@ package com.amit.seatreservation.exception;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,8 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+	private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
 	private ErrorResponse buildError(HttpStatus status, String message, HttpServletRequest request) {
 
 		return new ErrorResponse(LocalDateTime.now(), status.value(), status.getReasonPhrase(), message,
@@ -28,6 +32,9 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(ResourceNotFoundException.class)
 	public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
 
+		log.warn("Resource not found. method={}, path={}, message={}", request.getMethod(), request.getRequestURI(),
+				ex.getMessage());
+
 		return ResponseEntity.status(HttpStatus.NOT_FOUND)
 				.body(buildError(HttpStatus.NOT_FOUND, ex.getMessage(), request));
 	}
@@ -37,6 +44,9 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<ErrorResponse> handleSeatUnavailable(SeatUnavailableException ex,
 			HttpServletRequest request) {
 
+		log.warn("Seat unavailable. method={}, path={}, message={}", request.getMethod(), request.getRequestURI(),
+				ex.getMessage());
+
 		return ResponseEntity.status(HttpStatus.CONFLICT)
 				.body(buildError(HttpStatus.CONFLICT, ex.getMessage(), request));
 	}
@@ -44,6 +54,9 @@ public class GlobalExceptionHandler {
 	// 3. Business rule violation - 409
 	@ExceptionHandler(BusinessException.class)
 	public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException ex, HttpServletRequest request) {
+
+		log.warn("Business rule violation. method={}, path={}, message={}", request.getMethod(),
+				request.getRequestURI(), ex.getMessage());
 
 		return ResponseEntity.status(HttpStatus.CONFLICT)
 				.body(buildError(HttpStatus.CONFLICT, ex.getMessage(), request));
@@ -59,6 +72,9 @@ public class GlobalExceptionHandler {
 		for (FieldError error : ex.getBindingResult().getFieldErrors()) {
 			fieldErrors.put(error.getField(), error.getDefaultMessage());
 		}
+
+		log.warn("Request validation failed. method={}, path={}, fieldErrors={}", request.getMethod(),
+				request.getRequestURI(), fieldErrors);
 
 		Map<String, Object> response = new HashMap<>();
 
@@ -77,6 +93,9 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<ErrorResponse> handleConstraintViolation(ConstraintViolationException ex,
 			HttpServletRequest request) {
 
+		log.warn("Constraint validation failed. method={}, path={}, message={}", request.getMethod(),
+				request.getRequestURI(), ex.getMessage());
+
 		return ResponseEntity.badRequest().body(buildError(HttpStatus.BAD_REQUEST, "Validation failed", request));
 	}
 
@@ -85,6 +104,9 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<ErrorResponse> handleDatabaseConflict(DataIntegrityViolationException ex,
 			HttpServletRequest request) {
 
+		log.error("Database constraint violation. method={}, path={}", request.getMethod(), request.getRequestURI(),
+				ex);
+
 		return ResponseEntity.status(HttpStatus.CONFLICT)
 				.body(buildError(HttpStatus.CONFLICT, "Database constraint violation", request));
 	}
@@ -92,6 +114,8 @@ public class GlobalExceptionHandler {
 	// 7. Unexpected error - 500
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ErrorResponse> handleUnexpected(Exception ex, HttpServletRequest request) {
+
+		log.error("Unexpected server error. method={}, path={}", request.getMethod(), request.getRequestURI(), ex);
 
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 				.body(buildError(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred", request));

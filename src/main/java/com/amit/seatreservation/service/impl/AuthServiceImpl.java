@@ -4,6 +4,8 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
@@ -25,6 +27,7 @@ import com.amit.seatreservation.service.AuthService;
 
 @Service
 public class AuthServiceImpl implements AuthService {
+	 private static final Logger log = LoggerFactory.getLogger(AuthServiceImpl.class);
 
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
@@ -45,8 +48,11 @@ public class AuthServiceImpl implements AuthService {
 	public AuthResponse register(RegisterRequest request) {
 
 		String email = request.getEmail().trim().toLowerCase();
+		
+		log.info("Registration attempt for email: {}", email);
 
 		if (userRepository.existsByEmail(email)) {
+			log.warn("Registration failed. Email already registered: {}", email);
 			throw new BusinessException("Email is already registered");
 		}
 
@@ -62,6 +68,8 @@ public class AuthServiceImpl implements AuthService {
 
 		User savedUser = userRepository.save(user);
 
+		log.info("User registered successfully. userId={}, email={}", savedUser.getId(), savedUser.getEmail());
+
 		return generateToken(savedUser);
 	}
 
@@ -70,20 +78,52 @@ public class AuthServiceImpl implements AuthService {
 	public AuthResponse login(LoginRequest request) {
 
 		String email = request.getEmail().trim().toLowerCase();
-
+		log.info("Login attempt for email: {}", email);
 		User user = userRepository.findByEmail(email)
 				.orElseThrow(() -> new BusinessException("Invalid email or password"));
 
 		if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
-
+			log.warn("Login failed. Invalid password for email: {}", email);
 			throw new BusinessException("Invalid email or password");
 		}
+		
+		log.info("Login successful. userId={}, email={}", user.getId(), user.getEmail());
 
 		return generateToken(user);
 	}
+	
+	@Override
+	@Transactional
+	public AuthResponse adminRegister(RegisterRequest request) {
+
+		String email = request.getEmail().trim().toLowerCase();
+		
+		log.info("Registration attempt for email: {}", email);
+
+		if (userRepository.existsByEmail(email)) {
+			log.warn("Admin Registration failed. Email already registered: {}", email);
+			throw new BusinessException("Email is already registered");
+		}
+
+		User user = new User();
+
+		user.setName(request.getName().trim());
+		user.setEmail(email);
+
+		// Never store plain-text passwords
+		user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+
+		user.setRole(Role.ADMIN);
+
+		User savedUser = userRepository.save(user);
+
+		log.info("Admin registered successfully. userId={}, email={}", savedUser.getId(), savedUser.getEmail());
+
+		return generateToken(savedUser);
+	}
 
 	private AuthResponse generateToken(User user) {
-
+		log.debug("Generating JWT token. userId={}, email={}, role={}", user.getId(), user.getEmail(), user.getRole());
 		Instant now = Instant.now();
 
 		Instant expiry = now.plus(jwtExpiration, ChronoUnit.MILLIS);
@@ -98,6 +138,8 @@ public class AuthServiceImpl implements AuthService {
 		String token = jwtEncoder
 		        .encode(JwtEncoderParameters.from(header, claims))
 		        .getTokenValue();
+		
+		log.debug("JWT token generated successfully. userId={}, expiresAt={}", user.getId(), expiry);
 
 
 		return new AuthResponse(token, "Bearer", user.getId(), user.getEmail(), user.getRole().name());

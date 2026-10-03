@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Admin Registration | Seatly</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:,">
+</head>
+<body>
+
+    <div id="nav"></div>
+
+    <main class="auth">
+        <form class="panel" id="adminRegisterForm">
+
+            <p class="tag">ADMIN PORTAL</p>
+            <h1>Create Admin Account</h1>
+
+            <label>
+                Name
+                <input name="name" required>
+            </label>
+
+            <label>
+                Email
+                <input name="email" type="email" required>
+            </label>
+
+            <label>
+                Password
+                <input name="password" type="password" minlength="8" required>
+            </label>
+
+            <button class="btn" type="submit">
+                Register Admin
+            </button>
+
+            <div id="message"></div>
+
+            <p class="muted">
+                Already registered?
+                <a href="login.html">Sign in</a>
+            </p>
+
+        </form>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/admin-register.js"></script>
+
+</body>
+</html>

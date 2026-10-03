@@ -4,14 +4,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.amit.seatreservation.dto.AvailabilityResponse;
 import com.amit.seatreservation.dto.CreateSeatRequest;
 import com.amit.seatreservation.dto.SeatResponse;
-import com.amit.seatreservation.dto.ShowResponse;
 import com.amit.seatreservation.entity.Seat;
 import com.amit.seatreservation.entity.Show;
 import com.amit.seatreservation.enums.SeatStatus;
@@ -26,6 +26,8 @@ import com.amit.seatreservation.service.SeatService;
 @Service
 public class SeatServiceImpl implements SeatService {
 	
+	private static final Logger log = LoggerFactory.getLogger(SeatServiceImpl.class);
+	
 	private final SeatRepository seatRepository;
 	private final ShowRepository showRepository;
 
@@ -37,10 +39,11 @@ public class SeatServiceImpl implements SeatService {
 
 	@Override
 	public List<SeatResponse> createSeats(Long showId, CreateSeatRequest request) {
-		
+		log.info("Creating seats for showId: {}", showId);
 		Show show = showRepository.findById(showId).orElseThrow(()->new ResourceNotFoundException("Show not found with ID: " + showId));
 		
 		List<String> seatNumbers = request.getSeatNumbers();
+		log.debug("Requested seat numbers for showId {}: {}", showId, seatNumbers);
 		Set<String> uniqueSeatNumbers = new HashSet<>(seatNumbers);
 
         if (uniqueSeatNumbers.size() != seatNumbers.size()) {
@@ -62,11 +65,14 @@ public class SeatServiceImpl implements SeatService {
 			seat.setShow(show);
 			seat.setSeatNumber(seatNumber);
 			seat.setStatus(SeatStatus.AVAILABLE);
+
 			return seat;
 		}).toList();
-        
+
 		List<Seat> savedSeatsList = seatRepository.saveAll(seats);
-		
+
+		log.info("Successfully created {} seats for showId: {}", savedSeatsList.size(), showId);
+        
 		return savedSeatsList.stream()
                 .map(this::mapToResponse)
                 .toList();
@@ -83,22 +89,24 @@ public class SeatServiceImpl implements SeatService {
 	@Transactional(readOnly = true)
 	public List<SeatResponse> getSeatsByShow(Long showId) {
 		
+		log.info("Fetching seats for showId: {}", showId);
 		if(!seatRepository.existsById(showId)) {
 			throw new ResourceNotFoundException(
                     "Show not found with ID: " + showId
             );
 		}
 		
-		return seatRepository.findByShow_Id(showId)
-                .stream()
-                .map(this::mapToResponse)
-                .toList();
+		List<SeatResponse> seats = seatRepository.findByShow_Id(showId).stream().map(this::mapToResponse).toList();
+
+		log.info("Found {} seats for showId: {}", seats.size(), showId);
+
+		return seats;
 		
 	}
 
 	@Override
 	public AvailabilityResponse getAvailability(Long showId) {
-
+		log.info("Checking seat availability for showId: {}", showId);
 		if(!seatRepository.existsById(showId)) {
 			throw new ResourceNotFoundException(
                     "Show not found with ID: " + showId
@@ -115,6 +123,8 @@ public class SeatServiceImpl implements SeatService {
 		long confirmed = seatRepository.countByShow_IdAndStatus(showId, SeatStatus.CONFIRMED);
 		
 		long held = 0;
+		log.info("Seat availability for showId {}: total={}, available={}, held={}, confirmed={}", showId, total,
+				available, held, confirmed);
 		
 		return new AvailabilityResponse(showId, total, available, held, confirmed);
 	}

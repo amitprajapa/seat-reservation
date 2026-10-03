@@ -2,7 +2,8 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!auth()) return;
   document.getElementById("showForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-    let f = new FormData(e.currentTarget);
+	const form = e.currentTarget;
+    let f = new FormData(form);
     try {
       let x = Api.data(
         await Api.request("/api/admin/shows", {
@@ -14,8 +15,9 @@ document.addEventListener("DOMContentLoaded", () => {
           }),
         }),
       );
+	  debugger;
       msg("Show created. ID: " + (x?.id || "see response"), "success");
-      e.currentTarget.reset();
+     form.reset();
     } catch (x) {
       msg(x.message, "error");
     }

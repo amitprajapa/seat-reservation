@@ -30,9 +30,10 @@ public class SecurityConfig {
 					        "/",
 					        "/index.html",
 					        "/login.html",
-					        "/register.html",
+					        "/admin-register.html",
 					        "/seat-selection.html",
 					        "/bookings.html",
+					        "/register.html",
 					        "/admin.html"
 					    ).permitAll()
 
@@ -44,10 +45,10 @@ public class SecurityConfig {
 					        "/favicon.ico"
 					    ).permitAll()
 
-					    .requestMatchers(
-					        "/api/auth/register",
-					        "/api/auth/login"
-					    ).permitAll()
+//					    .requestMatchers(
+//					        "/api/auth/register",
+//					        "/api/auth/login"
+//					    ).permitAll()
 
 					    .requestMatchers(
 					        "/actuator/health",
@@ -73,6 +74,9 @@ public class SecurityConfig {
 					            "/actuator/metrics/**",
 					            "/actuator/prometheus"
 					    ).permitAll()
+					    
+					    .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+					    .requestMatchers("/api/auth/logout").authenticated()
 
 					    // All other endpoints require authentication
 					    .anyRequest().authenticated()
