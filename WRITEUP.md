@@ -270,10 +270,10 @@ Flyway is used to manage database migrations, while Hibernate schema validation 
 
 ### Live URLs
 
-- **Repository:** [Add GitHub URL]
-- **Application:** [Add Render URL]
-- **Health:** [Add `/actuator/health` URL]
-- **Prometheus:** [Add `/actuator/prometheus` URL]
+- **Repository:** https://github.com/amitprajapa/seat-reservation
+- **Application:** https://seat-reservation-api-lbfw.onrender.com/index.html
+- **Health:** https://seat-reservation-api-lbfw.onrender.com/actuator/health
+- **Prometheus:** https://seat-reservation-api-lbfw.onrender.com/actuator/prometheus
 
 # 12. Observability
 
@@ -332,7 +332,7 @@ The following test scenarios are relevant to the assignment.
 
 ## Load Test Results
 
-**Tool:** [Add tool/script name]  
+**Tool:** POST Man with collections hit  
 **Concurrent requests:** [Actual number]  
 **Duration:** [Actual duration]  
 **Successful reservations:** [Actual count]  
