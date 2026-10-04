@@ -332,13 +332,50 @@ The following test scenarios are relevant to the assignment.
 
 ## Load Test Results
 
-**Tool:** POST Man with collections hit  
-**Concurrent requests:** [Actual number]  
-**Duration:** [Actual duration]  
-**Successful reservations:** [Actual count]  
-**Conflict responses:** [Actual count]  
-**HTTP 5xx responses:** [Actual count]  
-**Latency:** [Actual measurements]  
+## Load Test Results — Initial Run
+
+### Test Environment
+
+| Parameter | Value |
+|---|---|
+| Load Testing Tool | Grafana k6 2.2.0 |
+| Deployment | Render |
+| Database | Aiven MySQL 8.4 |
+| Virtual Users (maximum) | 5 |
+| Test Duration | Approximately 55 seconds |
+| Test Scenario | Repeated booking attempt for one seat |
+
+### Measured Results
+
+| Metric | Result |
+|---|---:|
+| Total HTTP Requests | 38 |
+| HTTP 201 Responses | 0 |
+| HTTP 409 Responses | 38 |
+| Other HTTP Responses | 0 |
+| Average Response Time | 4.01 seconds |
+| Median Response Time | 3.77 seconds |
+| p90 Response Time | 4.65 seconds |
+| p95 Response Time | 6.05 seconds |
+| Maximum Response Time | 7.49 seconds |
+| Throughput | 1.13 requests/second |
+| k6 Check Failures | 0 |
+
+### Observations
+
+The initial test generated 38 reservation requests using a maximum of five virtual users.
+
+All requests received HTTP 409 Conflict, indicating that the tested reservation attempts were rejected as conflicts. No unexpected HTTP status was observed.
+
+The measured average response time was approximately 4.01 seconds, with p95 latency of approximately 6.05 seconds.
+
+This initial test provides a baseline for response time and conflict handling. It does not establish maximum system capacity or prove the single-winner concurrency property because no successful booking occurred during this run.
+
+Further testing is required using fresh available seats, multiple customer accounts, and controlled concurrent requests.
+
+### Conclusion
+
+The initial load test completed with zero failed k6 status checks. Response latency and reservation outcomes will be evaluated further using additional test scenarios.
 
 No performance result should be reported unless it was measured.
 
