@@ -1,6 +1,7 @@
 # Seat Reservation at Scale — Backend
 
 A Spring Boot REST API for reserving assigned seats for shows. This project is designed around correctness under concurrent booking attempts: a seat must not be confirmed for more than one reservation, multi-seat bookings must be all-or-nothing, per-user limits must remain correct under concurrency, and retries must not create duplicate reservations.
+## URL
 **Live URL** https://seat-reservation-api-lbfw.onrender.com/index.html
 
 ## Contents
